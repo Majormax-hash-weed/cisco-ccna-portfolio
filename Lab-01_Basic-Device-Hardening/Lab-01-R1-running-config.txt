@@ -1,0 +1,33 @@
+hostname R1
+!
+service password-encryption
+!
+enable secret 5 $1$mERr$c5rFZDLK1OFJTBW3GgY1R0
+!
+username admin privilege 15 secret 5 $1$mERr$fuJbp3RdiIdObhS8awSQ..
+!
+ip ssh version 2
+ip ssh time-out 60
+no ip domain-lookup
+ip domain-name novatech.local
+!
+interface GigabitEthernet0/0
+ description *** LINK TO SW1 ***
+ ip address 192.168.1.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+banner motd ^C
+AUTHORIZED ACCESS ONLY NovaTech Solutions
+Unauthorized access is PROHIBITED and will be prosecuted.
+All sessions are monitored and logged.
+^C
+!
+line con 0
+ exec-timeout 5 0
+ password 7 080243401A160912322503122B1F
+ logging synchronous
+ login
+line vty 0 4
+ login local
+ transport input ssh

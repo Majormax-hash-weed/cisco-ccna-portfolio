@@ -1,0 +1,38 @@
+hostname SW1
+!
+service password-encryption
+!
+enable secret 5 $1$mERr$c5rFZDLK1OFJTBW3GgY1R0
+!
+username admin secret 5 $1$mERr$fuJbp3RdiIdObhS8awSQ..
+!
+ip ssh version 2
+ip ssh time-out 60
+no ip domain-lookup
+ip domain-name novatech.local
+!
+interface FastEthernet0/24
+ switchport mode access
+!
+interface Vlan1
+ ip address 192.168.1.2 255.255.255.0
+!
+ip default-gateway 192.168.1.1
+!
+banner motd ^C
+======================================================================
+AUTHORIZED ACCESS ONLY --SW1 NovaTech Solutions
+======================================================================
+^C
+!
+line con 0
+ password 7 080243401A160912322503122B1F
+ logging synchronous
+ login
+ exec-timeout 5 0
+line vty 0 4
+ login local
+ transport input ssh
+line vty 5 15
+ login local
+ transport input ssh
