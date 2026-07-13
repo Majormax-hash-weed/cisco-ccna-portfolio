@@ -18,7 +18,7 @@ Administrative network access in this lab is strictly bound to an isolated, soft
 * **Administrative Host Terminal (PC1):** `192.168.1.10`
 * [cite_start]**Segment Subnet Mask:** `255.255.255.0` [cite: 12, 16]
 
-![Network Topology Design](./Lab-01_Topology.png)
+Lab-01_Basic-Device-Hardening/Lab-01_Topology.png
 
 ---
 
