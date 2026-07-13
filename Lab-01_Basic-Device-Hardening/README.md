@@ -1,6 +1,5 @@
-`README.md**`.
 ```markdown
-# Control Plane Hardening & Secure Remote Management Architecture
+# LAB 01: Control Plane Hardening & Secure Remote Management Architecture
 
 ## 1. Technical Executive Summary
 The primary objective of this infrastructure deployment is to systematically isolate, harden, and defend the management and control planes of an enterprise branch topology. Utilizing a Cisco 2911 Integrated Services Router (ISR) and a Cisco 2960 Catalyst Switch, this architecture implements a highly secure administrative baseline. The design mitigates unauthorized boundary access, replaces plaintext application streams with cryptographic transport, secures data-at-rest system credentials, and introduces structural protection against dictionary attacks to ensure alignment with standard enterprise compliance frameworks.
@@ -86,9 +85,11 @@ The reference diagram below delineates the routing vectors, interface boundaries
 ---
 
 ## 5. Configuration Scripts
+
 The production scripts for both active infrastructure elements are decoupled from this document to facilitate independent auditing procedures:
-* **Edge Gateway Parameters:** [View R1 Configurations](./Lab-01-R1-running-config.txt)
-* **Switch Core Parameters:** [View SW1 Configurations](./Lab-01-SW1_running-config.txt)
+
+* **Edge Gateway Parameters:** [View R1 Configurations](https://www.google.com/search?q=./Lab-01-R1-running-config.txt)
+* **Switch Core Parameters:** [View SW1 Configurations](https://www.google.com/search?q=./Lab-01-SW1_running-config.txt)
 
 ---
 
@@ -152,5 +153,6 @@ Authentication timeout: 60 secs; Authentication retries: 3
 ```
 
 ```
+***
 
 ```
