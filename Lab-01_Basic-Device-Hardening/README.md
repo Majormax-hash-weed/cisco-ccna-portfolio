@@ -93,92 +93,12 @@ Below are the complete, production-ready running configurations implemented on t
 
 * 📂 **Local Repository Link:** [View Raw R1 Script File](./Lab-01-R1-running-config.txt)
 
-#### Verification Evidence Captures:
 
-```cisco
-hostname R1
-!
-service password-encryption
-!
-enable secret 5 $1$mERr$c5rFZDLK1OFJTBW3GgY1R0
-!
-username admin privilege 15 secret 5 $1$mERr$fuJbp3RdiIdObhS8awSQ..
-!
-ip ssh version 2
-ip ssh time-out 60
-no ip domain-lookup
-ip domain-name novatech.local
-!
-interface GigabitEthernet0/0
- description *** LINK TO SW1 ***
- ip address 192.168.1.1 255.255.255.0
- duplex auto
- speed auto
-!
-banner motd ^C
-AUTHORIZED ACCESS ONLY NovaTech Solutions
-Unauthorized access is PROHIBITED and will be prosecuted.
-All sessions are monitored and logged.
-^C
-!
-line con 0
- exec-timeout 5 0
- password 7 080243401A160912322503122B1F
- logging synchronous
- login
-line vty 0 4
- login local
- transport input ssh
-
-```
 
 ### 5.2 Enterprise Core Switch (SW1) Configuration
 
 * 📂 **Local Repository Link:** [View Raw SW1 Script File](./Lab-01-SW1_running-config.txt)
 
-#### Verification Evidence Captures:
-
-```cisco
-hostname SW1
-!
-service password-encryption
-!
-enable secret 5 $1$mERr$c5rFZDLK1OFJTBW3GgY1R0
-!
-username admin secret 5 $1$mERr$fuJbp3RdiIdObhS8awSQ..
-!
-ip ssh version 2
-ip ssh time-out 60
-no ip domain-lookup
-ip domain-name novatech.local
-!
-interface FastEthernet0/24
- switchport mode access
-!
-interface Vlan1
- ip address 192.168.1.2 255.255.255.0
-!
-ip default-gateway 192.168.1.1
-!
-banner motd ^C
-======================================================================
-AUTHORIZED ACCESS ONLY --SW1 NovaTech Solutions
-======================================================================
-^C
-!
-line con 0
- password 7 080243401A160912322503122B1F
- logging synchronous
- login
- exec-timeout 5 0
-line vty 0 4
- login local
- transport input ssh
-line vty 5 15
- login local
- transport input ssh
-
-```
 
 ---
 
