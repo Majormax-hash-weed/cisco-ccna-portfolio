@@ -1,3 +1,5 @@
+`README.md**`.
+```markdown
 # Control Plane Hardening & Secure Remote Management Architecture
 
 ## 1. Technical Executive Summary
@@ -35,7 +37,7 @@ The reference diagram below delineates the routing vectors, interface boundaries
                                 ▼ [Medium: Category 5e UTP Straight-Through]
     ┌────────────────────────────────────────────────────────┐
     │               ENTERPRISE SWITCH CORE (SW1)             │
-    │  • Hardened Access Port: FastEthernet 0/24             │
+    │  • Hardened Access Port: FastEthernet 0/24              │
     │  • Port Configuration Mode: 'switchport mode access'   │
     │  • Native Operational Domain: VLAN 1 Binding Only      │
     │  • Management Interception: Interface Vlan1 SVI         │
@@ -47,9 +49,9 @@ The reference diagram below delineates the routing vectors, interface boundaries
                                 │
                                 ▼ [Medium: High-Speed Copper Uplink]
     ┌────────────────────────────────────────────────────────┐
-    │               EDGE SEGMENT GATEWAY (R1)                │
+    │                EDGE SEGMENT GATEWAY (R1)               │
     │  • Gateway Interface Path: GigabitEthernet 0/0         │
-    │  • Ingress Node Hardware Routing IP: 192.168.1.1        │
+    │  • Ingress Node Hardware Routing IP: 192.168.1.1       │
     └───────────────────────────┴────────────────────────────┘
 
 ```
@@ -82,10 +84,11 @@ The reference diagram below delineates the routing vectors, interface boundaries
 * **Architectural Justification:** While standard Type-7 obfuscation deters accidental disclosure during concurrent peer reviews, it lacks long-term cryptographic strength. Applying a mathematical one-way Type-5 hash to administrative execution layers ensures master passwords remain secured against typical dictionary search attacks in the event of configuration repository leaks.
 
 ---
+
 ## 5. Configuration Scripts
 The production scripts for both active infrastructure elements are decoupled from this document to facilitate independent auditing procedures:
-* **Edge Gateway Parameters:** [View R1 Configurations](./R1_running-config.txt)
-* **Switch Core Parameters:** [View SW1 Configurations](./SW1_running-config.txt)
+* **Edge Gateway Parameters:** [View R1 Configurations](./Lab-01-R1-running-config.txt)
+* **Switch Core Parameters:** [View SW1 Configurations](./Lab-01-SW1_running-config.txt)
 
 ---
 
@@ -149,10 +152,5 @@ Authentication timeout: 60 secs; Authentication retries: 3
 ```
 
 ```
-
-### What to do next:
-1. Paste this completely into that new file window on GitHub.
-2. Scroll to the bottom and hit **Commit changes**.
-3. Once this saves, check the visual layout. It will look like a completely independent, peer-reviewed engineering documentation summary!
 
 ```
