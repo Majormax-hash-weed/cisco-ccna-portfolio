@@ -1,4 +1,3 @@
-
 # LAB 01: Control Plane Hardening & Secure Remote Management Architecture
 
 ## 1. Technical Executive Summary
