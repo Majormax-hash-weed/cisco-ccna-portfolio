@@ -1,12 +1,14 @@
 # LAB 01: Control Plane Hardening & Secure Remote Management Architecture
 
-## 1. Technical Executive Summary
-The primary objective of this infrastructure deployment is to systematically isolate, harden, and defend the management and control planes of an enterprise branch topology. Utilizing a Cisco 2911 Integrated Services Router (ISR) and a Cisco 2960 Catalyst Switch, this architecture implements a highly secure administrative baseline. The design mitigates unauthorized boundary access, replaces plaintext application streams with cryptographic transport, secures data-at-rest system credentials, and introduces structural protection against dictionary attacks to ensure alignment with standard enterprise compliance frameworks.
+## 1. Technical Executive Summary & Domain Overview
+The control and management planes of network infrastructure represent the core administrative attack surface of an enterprise. In default factory configurations, devices like Cisco ISR routers and Catalyst switches operate under insecure operational baselines—credentials are often unencrypted, plaintext protocols like Telnet are permitted, and terminal parameters lack protection against raw brute-force discovery. 
+
+The primary objective of this deployment is to transform a standard topology into a hardened corporate branch environment using a Cisco 2911 Integrated Services Router (ISR) and a Cisco 2960 Catalyst Switch. This architecture implements cryptographic remote management enforcements, robust data-at-rest credential protection, strict timeout boundaries, and customized security notices. By introducing these layers, we break standard interception techniques (such as packet sniffing, credential harvesting, and session hijacking) and align the infrastructure with regulatory security compliance frameworks.
 
 ---
 
 ## 2. Infrastructure Topology & Subnet Matrix
-The architecture restricts administrative access to an isolated, software-defined management segment. This logical segregation guarantees that administrative traffic loops are structurally separated from standard user payload paths.
+Administrative network access in this lab is strictly bound to an isolated, software-defined management workspace. Restricting access to a specific subnetwork ensures that management data blocks do not mingle with standard data loops, establishing a fundamental security boundary.
 
 * **Management Subnet Boundary:** `192.168.1.0/24`
 * **Router R1 Gateway Interface (Gi0/0):** `192.168.1.1`
@@ -14,7 +16,7 @@ The architecture restricts administrative access to an isolated, software-define
 * **Administrative Host Terminal (PC1):** `192.168.1.10`
 * **Segment Subnet Mask:** `255.255.255.0`
 
-![Network Diagram](./Lab-01_Topology.png)
+![Network Topology Layout](./Lab-01_Topology.png.png)
 
 ---
 
@@ -52,103 +54,99 @@ The reference diagram below delineates the routing vectors, interface boundaries
     │  • Ingress Node Hardware Routing IP: 192.168.1.1       │
     └───────────────────────────┴────────────────────────────┘
 
-   ### Operational Phase Analysis:
+    Detailed Operational Phase Analysis:
+Host Outbound Ingress: The network administrator on PC1 triggers a remote terminal application targeting the switch management virtual IP (192.168.1.2). The local OS networking stack builds an IP packet encapsulated inside a Layer 4 segment specifying TCP Destination Port 22 (SSH). If the user had initiated a Telnet connection (TCP Port 23), the packet would be instantly dropped upon reaching the device interface because plaintext transport inputs are forbidden.
 
-1. **Host Outbound Ingress:** The administrative terminal initializes an access attempt directed to the switch management interface (`192.168.1.2`). The local communication stack generates an IP packet encapsulated with a **TCP Destination Port 22** signature.
-2. **Switchplane Filtering & SVI Interception:** Frames are received at physical interface `Fa0/24` on `SW1`. Layer-2 enforcement rules restrict the ingress boundary to an access port tied exclusively to VLAN 1. The internal switching logic channels the frame up to the Layer 3 Switched Virtual Interface (SVI). The management plane reads the TCP port 22 header, drops legacy port 23 traffic, and initializes asymmetric session verification.
-3. **Gateway Routing Vector:** When communications extend beyond the local broadcast domain, frames route through the physical uplink where `R1` processes the traffic path according to configured gateway policies.
+Switchplane Filtering & SVI Interception: The Ethernet frame hits physical port Fa0/24 on SW1. Because the port is hardcoded as an access interface within VLAN 1, the switch moves the frame into the native internal switching loop. The internal processor diverts the packet to the Switched Virtual Interface (SVI) Vlan1. The switch's control plane validates the SSH version parameters, drops legacy v1 connection attempts, matches the source IP against the interface matrix, and presents an encrypted identity challenge.
 
----
+Gateway Routing Vector: When management actions require communication outside the local broadcast domain (such as communicating with external systems or authenticating out-of-band), the frames route out of SW1 via the high-speed uplink to R1 interface Gi0/0. The router processes the traffic flow based on its localized security architecture rules and interface forwarding definitions.
 
-## 4. Engineering Implementation Analysis & Threat Mitigation
+4. Engineering Implementation Analysis & Threat Mitigation
+Cryptographic Transport Enforcement (SSHv2)
+Detailed Insight: Legacy networks heavily relied on Telnet for remote device administration. However, Telnet sends all transaction details—including administrative user identities and master passwords—in unencrypted plaintext. Anyone running basic packet capture tools (like Wireshark) on the path can easily read the credentials. To eliminate this risk, we completely decommission Telnet across all virtual terminal lines (line vty 0 4 and line vty 5 15) and enforce the use of Secure Shell Version 2 (SSHv2) via the transport input ssh directive.
 
-### Cryptographic Transport Enforcement (SSHv2)
+Key Derivation & Session Controls: SSHv2 requires a fully qualified domain name configuration (ip domain-name novatech.local) to serve as a cryptographic seed. We generate an asymmetric 2048-bit RSA key pair to encrypt the connection. To prevent unauthorized users from leaving active terminal windows open on their desks, an automated timeout rule drops inactive lines after 60 seconds (ip ssh time-out 60). Furthermore, dictionary brute-force attacks are limited by dropping connections after 3 failed login attempts (ip ssh authentication-retries 3).
 
-* **Design Execution:** Insecure Telnet options are decommissioned across all virtual terminal paths (`line vty 0 4` and `line vty 5 15`) and replaced with a strict **SSHv2** constraint (`transport input ssh`).
-* **Key Derivation Architecture:** A standard namespace domain (`novatech.local`) is provisioned to seed an asymmetric **2048-bit RSA key pair** on all managed elements. Operational timers drop idle lines at 60 seconds (`ip ssh time-out 60`) and restrict credential attempts to a ceiling of 3 (`ip ssh authentication-retries 3`).
-* **Architectural Justification:** Legacy plaintext protocols expose cleartext payloads to data harvesting via mid-stream packet capture tools. Forcing an upgrade to SSHv2 ensures all terminal transactions undergo asymmetric session negotiation, neutralizing credential interception threat vectors.
+Identity Management & Localized Authorization
+Detailed Insight: Using a single, universal shared password across a whole engineering team creates zero accountability; it becomes impossible to determine who performed a specific configuration change in the system logs. This deployment addresses that risk by moving away from global line passwords and enforcing individual database validation (login local).
 
-### Identity Management & Localized Authorization
+Execution Mapping: We build a unique user account (username admin) paired with immediate access rights (privilege 15). A legal warning message is also added globally via the Message of the Day engine (banner motd). This banner serves as a vital legal boundary, warning unauthorized users that all remote management activities are actively logged and monitored.
 
-* **Design Execution:** Shared infrastructure keys are replaced with discrete database entries (`login local`) mapped to distinct user profiles (`username admin`).
-* **Execution Mapping:** Account privileges are bound directly to user profiles to allow seamless administrative progression upon verification. Legal notices are implemented globally via the Message of the Day engine (`banner motd`).
-* **Architectural Justification:** Individual entry tracking introduces accountability and establishes compatibility paths for eventual integration with centralized AAA server pools (TACACS+/RADIUS). Concurrently, formal login banners satisfy organizational compliance requirements necessary for legal enforcement parameters.
+Data-at-Rest Security Frameworks
+Detailed Insight: If a backup repository or a TFTP server leaks configuration text files, any cleartext string inside those files compromises the entire network fabric. To secure data-at-rest, we implement a one-way Type-5 MD5 hashing mechanism on the system's execution layer using the enable secret command.
 
-### Data-at-Rest Security Frameworks
+Obfuscation Protocols: Standard access passwords (like console line parameters) are protected globally using Cisco's baseline obfuscation routine (service password-encryption). While this standard Type-7 encryption prevents casual shoulder-surfing, it is cryptography weak against decryption scripts. Applying the stronger, one-way Type-5 MD5 hash to the main enable password ensures administrative access remains secure even if configuration files are compromised.
 
-* **Design Execution:** One-way **Type-5 MD5 hashing parameters** protect the privileged EXEC mode path (`enable secret`). Legacy system passwords are encrypted globally using Cisco’s baseline obfuscation routine (`service password-encryption`).
-* **Architectural Justification:** While standard Type-7 obfuscation deters accidental disclosure during concurrent peer reviews, it lacks long-term cryptographic strength. Applying a mathematical one-way Type-5 hash to administrative execution layers ensures master passwords remain secured against typical dictionary search attacks in the event of configuration repository leaks.
+5. Deployment Configurations & Scripts
+Below are the complete, production-ready running configurations implemented on the network nodes. You can view the raw text files directly in the repository using the provided hyperlinked relative paths.
 
----
+### 5.1 Edge Gateway Router (R1) Configuration
+* 📂 **Local Repository Link:** [View Raw R1 Script File](./Lab-01-R1-running-config.txt)
+* 📂 **Local Repository Link:** [View Raw SW1 Script File](./Lab-01-SW1_running-config.txt)
+#### For Section 5.1 Router Captures:
+```markdown
+#### Verification Evidence Captures:
+![Router Running Config Part 1](./R1%20Running-config.png)
+![Router Running Config Part 2](./R1%20Running-config2.png)
+![Router Running Config Part 3](./R1%20Running-config3.png)
 
-## 5. Configuration Scripts
+#### Verification Evidence Captures:
+![Switch Running Config Part 1](./SW1%20Running-Config.png)
+![Switch Running Config Part 2](./SW1%20Running-Config-.png)
 
-The production scripts for both active infrastructure elements are decoupled from this document to facilitate independent auditing procedures:
+6. Verification Protocols & Operational Diagnostics
+To confirm that the control plane hardening is fully operational, we execute a structured series of testing phases within Cisco Packet Tracer:
 
-* **Edge Gateway Parameters:** [View R1 Configurations](https://www.google.com/search?q=./Lab-01-R1-running-config.txt)
-* **Switch Core Parameters:** [View SW1 Configurations](https://www.google.com/search?q=./Lab-01-SW1_running-config.txt)
+Test Phase 1: Bidirectional Transport Validation
+Detailed Explanation: Before testing advanced security settings, we must verify standard Layer 3 IP reachability across the management segment. This confirmation ensures that connectivity is completely stable and functional.
 
----
+Methodology: We execute a standard ICMP echo request from the administrator terminal (PC1) targeting the core switch virtual management interface IP address (192.168.1.2).
 
-## 6. Verification Protocols & Operational Diagnostics
+Syntax: ping 192.168.1.2
 
-The following testing phases confirm functional deployment parameters against baseline targets:
-
+Evidence Capture:
 ### Test Phase 1: Bidirectional Transport Validation
-
-* **Method:** Execute an ICMP echo request from host terminal `PC1` to the core switch virtual interface.
 * **Syntax:** `ping 192.168.1.2`
-* **Target Result:** 100% success rate with 0% packet loss metrics.
+* **Evidence Capture:**
+![PC Ping Verification](./PC%20Ping%20test.png)
 
-```text
-C:\> ping 192.168.1.2
-Pinging 192.168.1.2 with 32 bytes of data:
-Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
-Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
-Ping statistics for 192.168.1.2: Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
+Analysis: The output shows a 100% success rate with an average response time of less than 1 millisecond and zero packet loss. This confirms that the physical lines and logical IP configurations match our baseline goals.
 
-```text
 
-### Test Phase 2: Insecure Terminal Block Testing
 
-* **Method:** Attempt an unencrypted connection request to the switch plane via standard socket utilities.
-* **Syntax:** `telnet 192.168.1.2`
-* **Target Result:** Connection dropped or blocked immediately by the remote infrastructure node, validating successful telnet filtration.
+Test Phase 2: Insecure Terminal Block Testing
+Detailed Explanation: The objective of this phase is to verify that unencrypted plaintext transport mechanisms are successfully blocked at the device boundary.
 
+Methodology: We attempt an unencrypted connection request to the switch plane from PC1 using standard socket utilities.
+
+Syntax: telnet 192.168.1.2
+
+Analysis: The switch core immediately drops the connection request and closes the socket. This confirms the VTY lines are properly secured and that unencrypted Telnet connection attempts are blocked.
+
+Test Phase 3: Cryptographic Handshake Verification
+Detailed Explanation: This step confirms that the SSH server successfully negotiates the session, processes the local username database challenge, and displays our secure legal banner notice.
+
+Methodology: We initialize a secure terminal connection from the administrative host using the SSH client utility, targeting the switch virtual interface.
+
+Syntax: Open SSH Client Utility ➔ Target: 192.168.1.2 ➔ Identity: admin
+
+Evidence Captures:
 ### Test Phase 3: Cryptographic Handshake Verification
-
-* **Method:** Initialize an SSH terminal connection from `PC1` targeting the management segment core.
 * **Syntax:** Open SSH Client Utility ➔ Target: `192.168.1.2` ➔ Identity: `admin`
-* **Target Result:** Device returns appropriate regulatory legal notice parameters and passes the session to executive control mode upon challenge verification.
+* **Evidence Captures:**
+![SSH Client Configuration Screen](./SSH%20Client%20.png)
+![Active SSH Session Verification](./SW1%20-%20SSH.png)
 
-```text
-======================================================================
-AUTHORIZED ACCESS ONLY --SW1 NovaTech Solutions
-======================================================================
-SW1>
+Analysis: As shown in the active terminal evidence capture, the switch successfully displays the custom SW1 NovaTech Solutions legal message of the day banner. It then prompts for credentials against the localized database, passing the secure session directly into executive control mode upon successful verification.
 
-```text
 
-### Test Phase 4: Operational State Verification
 
-* **Method:** Inspect active cryptographic transport parameters from the local command execution prompt.
-* **Syntax:** `show ip ssh`
-* **Target Result:** Operating status confirms Version 2.0 implementation with matching timeout limits.
+Test Phase 4: Operational State Verification
+Detailed Explanation: The final diagnostic check audits the device's internal memory to confirm the cryptographic SSH engine is running the correct protocol parameters and version rules.
 
-```text
-SW1# show ip ssh
-SSH Enabled - version 2.0
-Authentication timeout: 60 secs; Authentication retries: 3
+Methodology: We run the system check command from the privileged EXEC prompt on both the switch and router.
 
-```
+Syntax: show ip ssh
 
-```text
-R1# show ip ssh
-SSH Enabled - version 2.0
-Authentication timeout: 60 secs; Authentication retries: 3
+Analysis: The device output confirms that SSH Enabled - version 2.0 is active. The timeout setting is securely locked at 60 seconds, and the authentication retry ceiling is capped at 3, verifying that our control plane hardening is fully operational.
 
-```
-
-```
-
-```
