@@ -13,10 +13,10 @@ The primary objective of this deployment is to transform a standard topology int
 Administrative network access in this lab is strictly bound to an isolated, software-defined management workspace. Restricting access to a specific subnetwork ensures that management data blocks do not mingle with standard data loops, establishing a fundamental security boundary.
 
 * **Management Subnet Boundary:** `192.168.1.0/24`
-* **Router R1 Gateway Interface (Gi0/0):** `192.168.1.1`
-* **Switch SW1 Management SVI (Vlan1):** `192.168.1.2`
+* [cite_start]**Router R1 Gateway Interface (Gi0/0):** `192.168.1.1` 
+* [cite_start]**Switch SW1 Management SVI (Vlan1):** `192.168.1.2` 
 * **Administrative Host Terminal (PC1):** `192.168.1.10`
-* **Segment Subnet Mask:** `255.255.255.0`
+* [cite_start]**Segment Subnet Mask:** `255.255.255.0` [cite: 12, 16]
 
 ![Network Topology Layout](./Lab-01_Topology.png)
 
