@@ -1,4 +1,4 @@
-```markdown
+
 # LAB 01: Control Plane Hardening & Secure Remote Management Architecture
 
 ## 1. Technical Executive Summary
@@ -15,7 +15,7 @@ The architecture restricts administrative access to an isolated, software-define
 * **Administrative Host Terminal (PC1):** `192.168.1.10`
 * **Segment Subnet Mask:** `255.255.255.0`
 
-![Network Diagram](Lab-01_Topology.png)
+![Network Diagram](./Lab-01_Topology.png)
 
 ---
 
@@ -53,13 +53,11 @@ The reference diagram below delineates the routing vectors, interface boundaries
     │  • Ingress Node Hardware Routing IP: 192.168.1.1       │
     └───────────────────────────┴────────────────────────────┘
 
-```
-
-### Operational Phase Analysis:
+   ### Operational Phase Analysis:
 
 1. **Host Outbound Ingress:** The administrative terminal initializes an access attempt directed to the switch management interface (`192.168.1.2`). The local communication stack generates an IP packet encapsulated with a **TCP Destination Port 22** signature.
 2. **Switchplane Filtering & SVI Interception:** Frames are received at physical interface `Fa0/24` on `SW1`. Layer-2 enforcement rules restrict the ingress boundary to an access port tied exclusively to VLAN 1. The internal switching logic channels the frame up to the Layer 3 Switched Virtual Interface (SVI). The management plane reads the TCP port 22 header, drops legacy port 23 traffic, and initializes asymmetric session verification.
-3. **Gateway Routing Vector:** When communications extend beyond the local broadcast domain, frames route through the physical uplink (`Fa0/1` on the switch to `Gi0/0` on the router) where `R1` processes the traffic path according to configured gateway policies.
+3. **Gateway Routing Vector:** When communications extend beyond the local broadcast domain, frames route through the physical uplink where `R1` processes the traffic path according to configured gateway policies.
 
 ---
 
@@ -74,7 +72,7 @@ The reference diagram below delineates the routing vectors, interface boundaries
 ### Identity Management & Localized Authorization
 
 * **Design Execution:** Shared infrastructure keys are replaced with discrete database entries (`login local`) mapped to distinct user profiles (`username admin`).
-* **Execution Mapping:** Account privileges are bound directly to **Privilege Level 15** to allow seamless administrative progression upon verification. Legal notices are implemented globally via the Message of the Day engine (`banner motd`).
+* **Execution Mapping:** Account privileges are bound directly to user profiles to allow seamless administrative progression upon verification. Legal notices are implemented globally via the Message of the Day engine (`banner motd`).
 * **Architectural Justification:** Individual entry tracking introduces accountability and establishes compatibility paths for eventual integration with centralized AAA server pools (TACACS+/RADIUS). Concurrently, formal login banners satisfy organizational compliance requirements necessary for legal enforcement parameters.
 
 ### Data-at-Rest Security Frameworks
@@ -110,7 +108,7 @@ Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
 Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
 Ping statistics for 192.168.1.2: Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
 
-```
+```text
 
 ### Test Phase 2: Insecure Terminal Block Testing
 
@@ -130,7 +128,7 @@ AUTHORIZED ACCESS ONLY --SW1 NovaTech Solutions
 ======================================================================
 SW1>
 
-```
+```text
 
 ### Test Phase 4: Operational State Verification
 
@@ -153,6 +151,5 @@ Authentication timeout: 60 secs; Authentication retries: 3
 ```
 
 ```
-***
 
 ```
