@@ -1,0 +1,20 @@
+!
+hostname R1
+!
+no ip domain-lookup
+!
+interface GigabitEthernet0/0
+ description *** R1 LOCAL LAN GATEWAY ***
+ ip address 10.1.1.1 255.255.255.0
+ no shutdown
+!
+interface GigabitEthernet0/1
+ description *** POINT-TO-POINT WAN TO R2 ***
+ ip address 10.0.0.1 255.255.255.252
+ no shutdown
+!
+! --- STATIC ROUTING RULES ---
+! Maps the route to R2's LAN via R2's WAN IP address as the next hop
+ip route 10.2.2.0 255.255.255.0 10.0.0.2
+!
+end
