@@ -1,0 +1,42 @@
+!
+hostname SW1
+!
+vlan 10
+ name Voice
+!
+vlan 20
+ name Data
+!
+vlan 30
+ name Management
+!
+vlan 99
+ name Native_Trunk
+!
+interface FastEthernet0/1
+ switchport mode access
+ switchport access vlan 20
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security violation shutdown
+ switchport port-security mac-address sticky
+!
+interface GigabitEthernet0/1
+ description *** TRUNK LINK TO SW2 ***
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 10,20,30,99
+ switchport mode trunk
+!
+interface Vlan30
+ description *** SW1 MANAGEMENT SVI ***
+ ip address 192.168.30.2 255.255.255.0
+ no shutdown
+!
+! --- HARDENING UNUSED INTERFACES ---
+interface range FastEthernet0/2 - 24, GigabitEthernet0/2
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+!
+end
