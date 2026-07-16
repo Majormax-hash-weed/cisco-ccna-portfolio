@@ -20,6 +20,8 @@ vlan 99
 ! --- GLOBAL STP TUNING ---
 spanning-tree mode rapid-pvst
 spanning-tree vlan 1,10,20,30,40,99 priority 4096
+! Explicit root enforcement for VLAN 99 to prevent blocking port anomalies
+spanning-tree vlan 99 root primary
 !
 ! --- REDUNDANT UPLINK TRUNKS ---
 interface range GigabitEthernet0/1 - 2
