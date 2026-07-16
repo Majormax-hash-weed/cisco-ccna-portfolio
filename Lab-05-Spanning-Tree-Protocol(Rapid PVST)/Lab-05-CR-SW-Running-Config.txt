@@ -1,0 +1,32 @@
+!
+hostname CORE-SW
+!
+! --- LOCAL VLAN DATABASE ---
+vlan 10
+ name Voice
+!
+vlan 20
+ name Data
+!
+vlan 30
+ name Management
+!
+vlan 40
+ name Guest
+!
+vlan 99
+ name Native_Trunk
+!
+! --- GLOBAL STP TUNING ---
+spanning-tree mode rapid-pvst
+spanning-tree vlan 1,10,20,30,40,99 priority 4096
+!
+! --- REDUNDANT UPLINK TRUNKS ---
+interface range GigabitEthernet0/1 - 2
+ description *** Trunk Links to Downstream Switches ***
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+!
+end
