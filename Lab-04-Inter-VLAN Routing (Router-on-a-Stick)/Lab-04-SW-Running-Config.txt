@@ -17,12 +17,12 @@ interface GigabitEthernet0/1
  switchport mode trunk
 !
 interface FastEthernet0/1
- description *** Access Port - VLAN 20 ***
+ description *** Access Port - VLAN 20 (Data) ***
  switchport access vlan 20
  switchport mode access
 !
 interface FastEthernet0/2
- description *** Access Port - VLAN 10 ***
+ description *** Access Port - VLAN 20 (Data) with Voice VLAN 10 ***
  switchport access vlan 20
  switchport voice vlan 10
  switchport mode access
