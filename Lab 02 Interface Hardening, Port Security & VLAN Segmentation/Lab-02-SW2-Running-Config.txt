@@ -13,6 +13,9 @@ vlan 30
 vlan 99
  name Native_Trunk
 !
+vlan 999
+ name Blackhole
+!
 interface FastEthernet0/1
  switchport mode access
  switchport access vlan 20
